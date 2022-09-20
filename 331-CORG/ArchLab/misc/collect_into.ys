@@ -1,0 +1,136 @@
+#
+#	Çağlar Alperen Tosun
+#	2310530
+
+
+.pos 0
+	irmovq 	Stack, %rsp
+	irmovq 	root, %rdi
+	irmovq 	array, %rsi
+	irmovq	$8, %rdx
+	irmovq	$8, %r11	# constant 8
+	call 	collect_into
+	halt
+
+collect_into:
+	pushq	%r13
+	pushq	%r12
+	pushq	%rbp
+	pushq	%rbx
+	subq	%r11, %rsp
+	rrmovq	%rdx, %rbx
+	irmovq 	$0, %r8
+	andq	%rdi, %rdi
+	jne	L11
+	irmovq	$1, %r8
+L11:	
+	irmovq	$0, %r9
+	andq	%rbx, %rbx
+	jg	L12
+	irmovq	$1, %r9
+L12:	
+	andq	%r9, %r9
+	jne	L14
+	andq	%r8, %r8
+	jne	L14
+	jmp	L17
+L13:
+	addq	%r11, %rsp	
+	popq	%rbx
+	popq	%rbp
+	popq	%r12
+	popq	%r13
+	ret
+L14:
+	irmovq	$0, %rax
+	jmp 	L13
+L17:
+	rrmovq	%rdi, %r12
+	rrmovq	%rsi, %r13
+	mrmovq	8(%rdi), %rdi
+	rrmovq	%rbx, %rdx
+	call 	collect_into
+	rrmovq 	%rbx, %r14 	# copy value
+	subq	%rax, %r14
+	je	L13
+	mrmovq	(%r12), %rdx
+	rrmovq 	%rax, %r10	# copy %rax to %r10
+	addq	%r10, %r10
+	addq	%r10, %r10
+	addq	%r10, %r10	# %r10 = 8 * %rax
+	addq	%r13, %r10	# %r10 = %r13 + 8 * %rax
+	rmmovq	%rdx, (%r10)	
+	subq	%rax, %rbx
+	leaq	1(%rax), %rbp
+	mrmovq	16(%r12), %rdi
+	leaq	-1(%rbx), %rdx
+	rrmovq	%rbp, %r10	# copy %rbp to %r10
+	addq	%r10, %r10
+	addq	%r10, %r10
+	addq	%r10, %r10	# %r10 = 8 * %rbp
+	addq	%r13, %r10	# %r10 = %r13 + 8 * %rbp
+	rrmovq	%r10, %rsi
+	call 	collect_into
+	addq	%rbp, %rax
+	jmp	L13	
+
+
+.pos 0x200
+root:
+	.quad 17
+	.quad node6
+	.quad node24
+node6:
+	.quad 6
+	.quad node4
+	.quad node11
+node4:
+	.quad 4
+	.quad node3
+	.quad node5
+node3:
+	.quad 3
+	.quad 0
+	.quad 0
+node5:
+	.quad 5
+	.quad 0
+	.quad 0
+node11:
+	.quad 11
+	.quad node8
+	.quad 0
+node8:
+	.quad 8
+	.quad 0
+	.quad 0
+node24:
+	.quad 24
+	.quad node19
+	.quad node40
+node19:
+	.quad 19
+	.quad 0
+	.quad 0
+node40:
+	.quad 40
+	.quad 0
+	.quad node52
+node52:
+	.quad 52
+	.quad 0
+	.quad 0
+
+.pos 0x400
+array:
+	.quad 0
+	.quad 0 	
+	.quad 0 	
+	.quad 0 	
+	.quad 0 	
+	.quad 0 	
+	.quad 0 	
+	.quad 0
+
+.pos 0x800
+Stack: 	

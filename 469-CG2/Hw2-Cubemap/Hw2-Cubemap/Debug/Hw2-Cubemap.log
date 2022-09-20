@@ -1,0 +1,13 @@
+﻿  Application.cpp
+D:\Repos\Homeworks\469-CG2\Hw2-Cubemap\Hw2-Cubemap\src\Application.cpp(218,23): warning C4018: '<': signed/unsigned mismatch
+D:\Repos\Homeworks\469-CG2\Hw2-Cubemap\Hw2-Cubemap\src\Application.cpp(227,23): warning C4018: '<': signed/unsigned mismatch
+D:\Repos\Homeworks\469-CG2\Hw2-Cubemap\Hw2-Cubemap\src\Application.cpp(145,20): warning C4101: 'index': unreferenced local variable
+D:\Repos\Homeworks\469-CG2\Hw2-Cubemap\Hw2-Cubemap\src\Application.cpp(246,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\Repos\Homeworks\469-CG2\Hw2-Cubemap\Hw2-Cubemap\src\Application.cpp(247,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\Repos\Homeworks\469-CG2\Hw2-Cubemap\Hw2-Cubemap\src\Application.cpp(251,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\Repos\Homeworks\469-CG2\Hw2-Cubemap\Hw2-Cubemap\src\Application.cpp(252,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\Repos\Homeworks\469-CG2\Hw2-Cubemap\Hw2-Cubemap\src\Application.cpp(253,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\Repos\Homeworks\469-CG2\Hw2-Cubemap\Hw2-Cubemap\src\Application.cpp(254,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\Repos\Homeworks\469-CG2\Hw2-Cubemap\Hw2-Cubemap\src\Application.cpp(634,41): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+D:\Repos\Homeworks\469-CG2\Hw2-Cubemap\Hw2-Cubemap\src\Application.cpp(680,29): warning C4305: '+=': truncation from 'double' to 'float'
+  Hw2-Cubemap.vcxproj -> D:\Repos\Homeworks\469-CG2\Hw2-Cubemap\Debug\Hw2-Cubemap.exe

@@ -1,0 +1,7 @@
+﻿  Application.cpp
+D:\Repos\Homeworks\469-CG2\Hw1-Flag\Hw1-Flag\src\Application.cpp(62,23): warning C4018: '<': signed/unsigned mismatch
+D:\Repos\Homeworks\469-CG2\Hw1-Flag\Hw1-Flag\src\Application.cpp(125,37): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+D:\Repos\Homeworks\469-CG2\Hw1-Flag\Hw1-Flag\src\Application.cpp(285,18): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\Repos\Homeworks\469-CG2\Hw1-Flag\Hw1-Flag\src\Application.cpp(295,15): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\Repos\Homeworks\469-CG2\Hw1-Flag\Hw1-Flag\src\Application.cpp(528,41): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+  Hw1-Flag.vcxproj -> D:\Repos\Homeworks\469-CG2\Hw1-Flag\Debug\Hw1-Flag.exe

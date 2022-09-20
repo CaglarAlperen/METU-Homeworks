@@ -1,0 +1,220 @@
+#/* $begin absrev-ys */
+##################################################################
+# absrev.ys - Reverse a src block of len words to dst.
+# Return the sum of absolute values of words contained in src.
+#
+# Çağlar Alperen Tosun - 2310530
+# Code modifications:
+# - Step1: I calculated 8 * len value by adding %rcx itself three
+# times instead of adding len value 7 more times.
+# CPE before: 17.83 	CPE after: 17.53
+#
+# - Step2: I implemented 2x1 loop unrolling.
+# CPE before: 17.53	CPE after: 12.29
+#
+# - Step3: I increased unrolling factor to 3.
+# CPE before: 12.29	CPE after: 11.88
+#
+# - Step4: I increased unrolling factor to 4.
+#  CPE before: 11.88	CPE after: 11.66
+#
+# - Step5: I increased unrolling factor to 5.
+#  CPE before: 11.66	CPE after: 11.52
+#
+# - Step6: I increased unrolling factor to 6.
+#  CPE before: 11.52	CPE after: 11.46
+#
+# - Step7: I increased unrolling factor to 8, added leaq instruction
+# to pipe-full.hcl in order to make faster calculations.
+#  CPE before: 11.46	CPE after: 10.59
+#
+# - Step8: I replaced negating method with a faster one. My old 
+# implementation was negating values by copying it in another 
+# register and substracting it from zero. My new approach is doing
+# an xor operation with mask to toggle bits of negative number and
+# adds 1 to calculate abs val. It works since nehative values are 
+# stored as 2's complement representation.
+#  CPE before: 10.59	CPE after: 10.14
+#
+# - Step9: I realized that negating all numbers when copying them
+# is unnecessary because I can sum all negative values in another
+# register and subtract two times negative numbers sum from all 
+# numbers sum to get absolute values sum.
+#  CPE before: 10.07	CPE after: 9.69
+#
+##################################################################
+# Do not modify this portion
+# Function prologue.
+# %rdi = src, %rsi = dst, %rdx = len
+absrev:
+##################################################################
+# You can modify this portion
+    # Loop header
+    	xorq	%rax, %rax	# sum of all values = 0
+	xorq	%rbx, %rbx	# sum of negatives = 0
+
+    	rrmovq 	%rdx, %r8	
+    	addq 	%r8, %r8
+    	addq 	%r8, %r8
+    	addq 	%r8, %r8	
+    	leaq 	-8(%rsi), %rcx
+	addq	%r8, %rcx	# rcx holds dst_rev
+	icmpq	$8, %rdx	# len < 8?
+	jl	Remaining
+
+Loop:
+    	mrmovq 	(%rdi), %r9 	# read val1 from src
+    	mrmovq 	8(%rdi), %r10	# read val2 from src+1
+	mrmovq	16(%rdi), %r11	# read val3 from src+2
+	mrmovq	24(%rdi), %r12	# read val4 from src+3
+    	rmmovq 	%r9, (%rcx)	# write val1 to dst_rev
+    	rmmovq 	%r10, -8(%rcx)	# write val2 to dst_rev-1
+	rmmovq	%r11, -16(%rcx) # write val3 to dst_rev-2
+	rmmovq	%r12, -24(%rcx)	# write val4 to dst_rec-3
+    	andq 	%r9, %r9    	# val1 < 0?
+    	jge 	Positive        # if positive don't add to negatives
+    	addq	%r9, %rbx	# negatives += val1
+Positive:
+    	addq 	%r9, %rax	# sum += val1
+	andq	%r10, %r10	# val2 < 0?
+	jge	Positive2	# if positive, skip negating
+	addq	%r10, %rbx
+Positive2:
+    	addq 	%r10, %rax	# sum2 += |val2|
+	andq	%r11, %r11	# val3 < 0?
+	jge	Positive3	# if positive, skip negating
+	addq	%r11, %rbx
+Positive3:
+	addq	%r11, %rax	# sum1 += |val3|
+	andq	%r12, %r12
+	jge	Positive4
+	addq	%r12, %rbx
+Positive4:
+	addq	%r12, %rax
+	
+	mrmovq	32(%rdi), %r9	# read val5 from src+4
+	mrmovq	40(%rdi), %r10	# read val6 from src+5
+	mrmovq	48(%rdi), %r11	# read val7 from src+6
+	mrmovq	56(%rdi), %r12	# read val8 from src+7
+	rmmovq	%r9, -32(%rcx)	# write val5 to dst_rev-4
+	rmmovq	%r10, -40(%rcx)	# write val6 to dst_rev-5
+	rmmovq	%r11, -48(%rcx)	# write val7 to dst_rev-6
+	rmmovq	%r12, -56(%rcx) # write val8 to dst_rec-7
+	andq	%r9, %r9	# val4 < 0?	
+	jge 	Positive5	# if positive, skip negating
+	addq	%r9, %rbx
+Positive5:
+	addq	%r9, %rax	# sum += |val4|
+	andq	%r10, %r10	# val5 < 0?
+	jge	Positive6	# if positive, skip negating
+	addq	%r10, %rbx
+Positive6:
+	addq	%r10, %rax	# sum += |val5|
+	andq	%r11, %r11
+	jge 	Positive7
+	addq	%r11, %rbx
+Positive7:
+	addq	%r11, %rax
+	andq	%r12, %r12
+	jge 	Positive8
+	addq	%r12, %rbx
+Positive8:
+	addq	%r12, %rax	
+
+    	leaq 	64(%rdi), %rdi	# src += 8
+    	leaq 	-64(%rcx), %rcx	# dst_rev -= 8
+    	leaq 	-8(%rdx), %rdx	# len -= 8
+    	icmpq	$8, %rdx	# len > 8?
+	jge	Loop	
+
+Remaining:
+    	icmpq 	$4, %rdx	# len > 4?
+    	jl 	Remaining4
+
+    	mrmovq 	(%rdi), %r9	# read val1 from src
+	mrmovq	8(%rdi), %r10
+	mrmovq	16(%rdi), %r11
+	mrmovq	24(%rdi), %r12
+	rmmovq	%r9, (%rcx)
+	rmmovq	%r10, -8(%rcx)
+	rmmovq	%r11, -16(%rcx)
+	rmmovq	%r12, -24(%rcx)
+	
+	andq	%r9, %r9	
+	jge	Positive9
+	addq	%r9, %rbx
+Positive9:
+	addq	%r9, %rax
+
+	andq	%r10, %r10	
+	jge	Positive10
+	addq	%r10, %rbx
+Positive10:
+	addq	%r10, %rax
+	
+	andq	%r11, %r11	
+	jge	Positive11
+	addq	%r11, %rbx
+Positive11:
+	addq	%r11, %rax
+
+	andq	%r12, %r12	
+	jge	Positive12
+	addq	%r12, %rbx
+Positive12:
+	addq	%r12, %rax
+	leaq	32(%rdi), %rdi
+	leaq	-32(%rcx), %rcx
+	leaq	-4(%rdx), %rdx
+
+Remaining4:
+	icmpq	$2, %rdx	# len > 2?
+	jl	Remaining2
+
+	mrmovq	(%rdi), %r9
+	mrmovq	8(%rdi), %r10
+	rmmovq	%r9, (%rcx)
+	rmmovq	%r10, -8(%rcx)
+
+	andq	%r9, %r9
+	jge 	Positive13
+	addq	%r9, %rbx
+Positive13:
+	addq	%r9, %rax
+
+	andq	%r10, %r10	
+	jge 	Positive14
+	addq	%r10, %rbx
+Positive14:
+	addq	%r10, %rax
+	leaq	16(%rdi), %rdi
+	leaq	-16(%rcx), %rcx
+	leaq	-2(%rdx), %rdx
+
+Remaining2:
+	andq	%rdx, %rdx
+	je	Final
+
+	mrmovq	(%rdi), %r9
+	rmmovq	%r9, (%rcx)
+	
+	andq	%r9, %r9
+	jge	Positive15
+	addq	%r9, %rbx
+Positive15:
+	addq	%r9, %rax
+
+Final:
+	subq	%rbx, %rax	# 2 * negatives
+	subq	%rbx, %rax	# positives + negatives - 2 * negatives = sum of abs values
+	
+
+##################################################################
+# Do not modify the following section of code
+# Function epilogue.
+Done:
+    ret
+##################################################################
+# Keep the following label at the end of your function
+End:
+#/* $end absrev-ys */
